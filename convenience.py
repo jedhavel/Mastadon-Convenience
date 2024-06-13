@@ -1,7 +1,12 @@
+'''
+Convenience wrapper around Mastodon API for specialized use within a closed VLAN with no outside dependencies. For more robust functionality,
+especially when building custom UX for apps, prefer to use more fully featured Mastodon.py library. 
+'''
+
 import json
 import requests
 
-wd = os.getcwd()
+
 
 
 MAXACCTS = 150	# Max number of user accounts that you expect on your system
@@ -11,6 +16,11 @@ USER_STAT_OFILE = "active_user_stats.txt"
 
 apiurl = baseurl + "api/v1/"
 
+
+'''
+Runs automatically if you just call the script from cmd line.
+Saves toots per user, and total toots to `USER_STAT_OFILE`
+'''
 def saveStatsForActiveUsers():
 	total_tootz = 0
 	with open(USER_STAT_OFILE, "w") as ofile:
@@ -30,20 +40,6 @@ def saveStatsForActiveUsers():
 				print("Key Error | User not found")
 		ofile.write("Total Toots: " + str(total_tootz))
 getStatsForActiveUsers()
-
-'''
-Pull account data for all user accounts
-'''
-def getAcct(_id):
-        if DEBUG:
-		print("\n\nUID: " + str(u) + "\n\n")
-        try:
-                result = requests.get(apiurl + "accounts/" + str(u))
-                if DEBUG:
-                       print("Result: " + str(result) + "\n")
-        except KeyError:
-                print("Key Error | User not found")
-	return json.loads(result.decode('utf-8'))
 
 '''
 Pull account data for all user accounts
@@ -73,6 +69,23 @@ def getUsernameFromId(_id):
                 if acct["id"] == _id:
                         username = acct["username"]
         return username
+
+'''
+Pull account data for a user account
+'''
+def getAcctById(_id):
+        if DEBUG:
+		print("\n\nUID: " + str(_id) + "\n\n")
+        try:
+                result = requests.get(apiurl + "accounts/" + str(u))
+                if DEBUG:
+                       print("Result: " + str(result) + "\n")
+        except KeyError:
+                print("Key Error | User not found")
+	return json.loads(result.decode('utf-8'))
+
+def getAcctByUsername(username):
+        return getAcctById(getIdFromUsername(username))
 
 def getUserTootsById(_id):
         result = requests.get(apiurl + "accounts/" + str(_id) + "/statuses")
